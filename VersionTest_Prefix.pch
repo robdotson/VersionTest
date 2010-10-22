@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'VersionTest' target in the 'VersionTest' project
+//
+
+#ifdef __OBJC__
+	#import <Cocoa/Cocoa.h>
+#endif
