@@ -1,44 +1,38 @@
-#!/bin/sh
-
+#!/bin/tcsh
 #  git-version.sh
 #  VersionTest
 #
 #  Created by Rob Dotson on 10/22/10.
 #  Copyright (c) 2010 New York University. All rights reserved.
 
-set PLIST = ${INFOPLIST_PATH}
-
-echo $INFOPLIST_PATH
-echo $PLIST
-
-BUNDLE_VERSION = `defaults read $PLIST CFBundleVersion`
+# Get the path to the plist file
+setenv MY_PLIST `echo ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH} | sed 's/\(.*\)\..*/\1/'`
+setenv MY_BUNDLE_VERSION `defaults read $MY_PLIST CFBundleVersion`
 
 # Check if the bundle version exists or is zero, if so, set it to one
-if [ -z $BUNDLE_VERSION ] or [ $BUNDLE_VERSION -eq 0 ]; then
-	BUNDLE_VERSION = 1;
-fi
+if( $MY_BUNDLE_VERSION == "" || $MY_BUNDLE_VERSION == 0 ) then
+setenv MY_BUNDLE_VERSION 1
+endif
 
 # Find the default git on this system, this could be made more robust
 # by iterating through the files returned by whereis or using an
 # environment variable.
 # If git cannot be found, try subversion. If that fails, just increment
 # the build version.
-if [ -f `which git` ]; then
-	VERSION = `git rev-list --all | wc -l | sed "s/[ \t]//g"`
-#	if [ $BUNDLE_VERSION -ge $VERSION ]; then
-#		VERSION = $BUNDLE_VERSION;
+if( -e `which git` ) then
+setenv MY_VERSION `git rev-list --all | wc -l | sed "s/[ \t]//g"`
+#	if [ $BUNDLE_VERSION -ge $MY_VERSION ]; then
+#		MY_VERSION = $BUNDLE_VERSION;
 #	fi
-elif [ -f `which svn` ]; then
-	VERSION = `svn info -r NUMBER`
 else
-	VERSION = BUNDLE_VERSION + 1;
-fi
+setenv MY_VERSION `expr $MY_BUNDLE_VERSION + 1`
+endif
 
 # Check if the final version exists or is zero, if so, set it to one
-if [ -z $VERSION ] or [ $VERSION -eq 0 ]; then
-	VERSION = 1;
-fi
+if( $MY_VERSION == "" || $MY_VERSION == 0 ) then
+setenv MY_VERSION 1
+endif
 
-defaults write $PLIST CFBundleVersion $VERSION
+defaults write $MY_PLIST CFBundleVersion $MY_VERSION
 
-echo $VERSION
+echo $MY_VERSION
