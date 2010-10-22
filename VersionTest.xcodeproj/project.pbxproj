@@ -13,19 +13,21 @@
 		D47E61021271E68300599402 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = D47E61001271E68300599402 /* MainMenu.xib */; };
 		D47E61051271E68300599402 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = D47E61031271E68300599402 /* Credits.rtf */; };
 		D47E61081271E68300599402 /* VersionTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D47E61071271E68300599402 /* VersionTestAppDelegate.m */; };
+		D47E61151271E77100599402 /* git-version.sh in Resources */ = {isa = PBXBuildFile; fileRef = D47E61141271E77100599402 /* git-version.sh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		D47E60F41271E68300599402 /* VersionTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VersionTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D47E60F71271E68300599402 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		D47E60F91271E68300599402 /* VersionTest-Info.plist */ = {isa = PBXFileReference; path = "VersionTest-Info.plist"; sourceTree = "<group>"; };
-		D47E60FA1271E68300599402 /* VersionTest_Prefix.pch */ = {isa = PBXFileReference; path = VersionTest_Prefix.pch; sourceTree = "<group>"; };
+		D47E60F91271E68300599402 /* VersionTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "VersionTest-Info.plist"; sourceTree = "<group>"; };
+		D47E60FA1271E68300599402 /* VersionTest_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VersionTest_Prefix.pch; sourceTree = "<group>"; };
 		D47E60FC1271E68300599402 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D47E60FE1271E68300599402 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D47E61011271E68300599402 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		D47E61041271E68300599402 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		D47E61061271E68300599402 /* VersionTestAppDelegate.h */ = {isa = PBXFileReference; path = VersionTestAppDelegate.h; sourceTree = "<group>"; };
+		D47E61061271E68300599402 /* VersionTestAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VersionTestAppDelegate.h; sourceTree = "<group>"; };
 		D47E61071271E68300599402 /* VersionTestAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VersionTestAppDelegate.m; sourceTree = "<group>"; };
+		D47E61141271E77100599402 /* git-version.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "git-version.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +56,7 @@
 		D47E60EC1271E68300599402 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				D47E61141271E77100599402 /* git-version.sh */,
 				D47E61061271E68300599402 /* VersionTestAppDelegate.h */,
 				D47E61071271E68300599402 /* VersionTestAppDelegate.m */,
 			);
@@ -106,6 +109,7 @@
 				D47E60F01271E68300599402 /* Sources */,
 				D47E60F11271E68300599402 /* Frameworks */,
 				D47E60F21271E68300599402 /* Resources */,
+				D47E61121271E69800599402 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -149,10 +153,27 @@
 				D47E60FD1271E68300599402 /* InfoPlist.strings in Resources */,
 				D47E61021271E68300599402 /* MainMenu.xib in Resources */,
 				D47E61051271E68300599402 /* Credits.rtf in Resources */,
+				D47E61151271E77100599402 /* git-version.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D47E61121271E69800599402 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/tcsh;
+			shellScript = "#!/bin/tcsh\n#  git-version.sh\n#  VersionTest\n#\n#  Created by Rob Dotson on 10/22/10.\n#  Copyright (c) 2010 New York University. All rights reserved.\n\n# Get the path to the plist file\nsetenv MY_PLIST `echo ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH} | sed 's/\\(.*\\)\\..*/\\1/'`\nsetenv MY_BUNDLE_VERSION `defaults read $MY_PLIST CFBundleVersion`\n\n# Check if the bundle version exists or is zero, if so, set it to one\nif( $MY_BUNDLE_VERSION == \"\" || $MY_BUNDLE_VERSION == 0 ) then\n    setenv MY_BUNDLE_VERSION 1\nendif\n\n# Find the default git on this system, this could be made more robust\n# by iterating through the files returned by whereis or using an\n# environment variable.\n# If git cannot be found, try subversion. If that fails, just increment\n# the build version.\nif( -e `which git` ) then\nsetenv MY_VERSION `git rev-list --all | wc -l | sed \"s/[ \\t]//g\"`\n#\tif [ $BUNDLE_VERSION -ge $MY_VERSION ]; then\n#\t\tMY_VERSION = $BUNDLE_VERSION;\n#\tfi\nelse\nsetenv MY_VERSION `expr $MY_BUNDLE_VERSION + 1`\nendif\n\n# Check if the final version exists or is zero, if so, set it to one\nif( $MY_VERSION == \"\" || $MY_VERSION == 0 ) then\nsetenv MY_VERSION 1\nendif\n\ndefaults write $MY_PLIST CFBundleVersion $MY_VERSION\n\necho $MY_VERSION\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D47E60F01271E68300599402 /* Sources */ = {
